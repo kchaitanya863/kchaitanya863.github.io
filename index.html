@@ -32,28 +32,29 @@
               <v-list>
                 <v-list-tile v-for="item in items2" :key="item.text" avatar @click="switchShow(item.text)">
                   <v-list-tile-avatar>
-                    <img :src="`https://randomuser.me/api/portraits/men/${item.picture}.jpg`" alt="">
+                    <img :src="`assets/${item.picture}.png`" alt="">
                   </v-list-tile-avatar>
                   <v-list-tile-title v-text="item.displayText"></v-list-tile-title>
                 </v-list-tile>
               </v-list>
-              <v-list-tile class="mt-3" @click="">
+              <v-list-tile class="mt-3" @click="sync">
                 <v-list-tile-action>
-                  <v-icon color="grey darken-1">add_circle_outline</v-icon>
+                  <v-icon color="grey darken-1">history</v-icon>
                 </v-list-tile-action>
-                <v-list-tile-title class="grey--text text--darken-1">Browse Channels</v-list-tile-title>
+                <v-list-tile-title class="grey--text text--darken-1">Sync Now</v-list-tile-title>
               </v-list-tile>
-              <v-list-tile @click="">
+              <v-list-tile @click="" href="mailto:theappmaker@live.com?subject=Hungama%20Shows%20Review">
                 <v-list-tile-action>
-                  <v-icon color="grey darken-1">settings</v-icon>
+                  <v-icon color="grey darken-1">email</v-icon>
                 </v-list-tile-action>
-                <v-list-tile-title class="grey--text text--darken-1">Manage Subscriptions</v-list-tile-title>
+                <v-list-tile-title class="grey--text text--darken-1">Feedback To Developer</v-list-tile-title>
               </v-list-tile>
             </v-list>
           </v-navigation-drawer>
           <v-toolbar color="red" dense fixed clipped-left app>
             <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-            <v-icon class="mx-1">fa-youtube</v-icon>
+            <!-- <v-icon class="mx-1">fa-youtube</v-icon>
+            <v-icon>fas fa-circle-notch fa-spin</v-icon> -->
             <v-toolbar-title class="mr-5 align-center">
               <span class="title">Hungama Shows</span>
             </v-toolbar-title>
@@ -69,12 +70,14 @@
                           </v-list-tile>
                         </v-list>
                       </v-menu>
-                      
+                      <!-- <v-btn color="primary" dark slot="activator" @click="sync">SYNC NOW</v-btn> -->
                     </div>
                   </template>
               <!-- <v-text-field placeholder="Search..." single-line append-icon="search" :append-icon-cb="() => {}" color="white" hide-details></v-text-field> -->
             <!-- </v-layout> -->
-            <v-icon color="white" medium dark class="x-3" @click="sync">fa-youtube</v-icon>
+            
+            <!-- <v-icon color="white" medium dark class="x-3" @click="sync">fa-youtube</v-icon>
+            <v-icon color="white" medium dark class="x-3" @click="saveToLocal">fa-youtube</v-icon> -->
           </v-toolbar>
           <v-content>
             <v-container fill-height>
@@ -98,19 +101,19 @@
                 <!-- <p v-for="item in chotaBheem.items"> {{ item.snippet.thumbnails.high.url}}</p> -->
                 <template>
                   <v-layout row wrap>
-                    <v-flex v-for="item in selected.items" xs12 sm6 md4 lg3 padding-left-3>
-                      <v-card>
-                        <v-card-media :src="item.snippet.thumbnails.default.url" height="200px">
+                    <v-flex  v-for="item in selected.items" xs12 sm6 md4 lg3 padding-left-3>
+                      <v-card :href="'https://www.youtube.com/embed/'+ item.id.videoId +'?autoplay=1&amp;rel=0&amp;showinfo=0'">
+                        <v-card-media :src="item.snippet.thumbnails.high.url" height="200px">
                         </v-card-media>
-                        <v-card-title primary-title>
+                        <!-- <v-card-title primary-title>
                           <div>
                             <h3 class="headline mb-0">{{item.snippet.title.substring(0,25)}}</h3>
-                            <!-- <div>{{item.snippet.description}}</div> -->
+                            <div>{{item.snippet.description}}</div>
                           </div>
                         </v-card-title>
                         <v-card-actions>
-                          <v-btn flat color="orange">Share</v-btn>
-                          <v-btn flat color="orange">Explore</v-btn>
+                          <v-btn flat color="orange" :href="'https://www.youtube.com/embed/'+ item.id.videoId +'?autoplay=1&amp;rel=0&amp;showinfo=0'">Play</v-btn>
+                          <v-btn flat color="orange">Explore</v-btn> -->
                         </v-card-actions>
                       </v-card>
                     </v-flex>
@@ -128,6 +131,13 @@
   <script src="https://unpkg.com/vuetify/dist/vuetify.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script>
+
+    function saveToLocalStorage(key,data){
+      localStorage.setItem(key, JSON.stringify(data));
+    }
+    function loadFromLocalStorage(){
+      app._data.stored = JSON.parse(localStorage.getItem('dataObject'));
+    }
     var app = new Vue({
       el: '#app',
       methods : {
@@ -144,15 +154,23 @@
             this.selected = this.stored[showName];
             }
            this.drawer = false;
+           this.saveToLocal();
         },
         switchLanguage: function(language){
           this.selectedLanguage = language;
+          this.sync();
         },
         sync: function(){
           var showName = this.selectedShow;
           showName = showName.replace(/!/g,  '%21').replace(/'/g,  '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A').replace(/%20/g, '+');
           this.selected = axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q="+showName+"+full+episodes+in+"+this.selectedLanguage+"&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU")
           .then(response => {this.selected = response.data; this.stored[showName] = response.data;})
+          this.saveToLocal();
+        },
+        saveToLocal : function(){
+          saveToLocalStorage('stored_data',this.stored);
+          saveToLocalStorage('selectedShow',this.selected);
+          localStorage.setItem('selectedLanguage',this.selectedLanguage);
         }
       },
       data: () => ({
@@ -166,11 +184,16 @@
         ],
         items2: [
           
-          { picture: 38, text: 'Doraemon', displayText: 'Doraemon' },
-          { picture: 39, text: 'chota bheem pogo', displayText: 'Chota Bheem' },
-          { picture: 36, text: 'pokemon all', displayText: 'Pokemon' },
-          { picture: 48, text: 'Shinchan', displayText: 'Shinchan' },
-          { picture: 78, text: 'MKBHD', displayText: 'MKBHD'}
+          { picture: 'Doraemon', text: 'Doraemon', displayText: 'Doraemon' },
+          { picture: 'chotaBheem', text: 'chota bheem pogo', displayText: 'Chota Bheem' },
+          { picture: 'Hagimaru', text: 'Hagimaru', displayText: 'Hagimaru' },
+          { picture: 'Kiteratsu', text: 'Kiteratsu', displayText: 'Kiteratsu' },
+          { picture: 'Kochikame', text: 'Kochikame', displayText: 'Kochikame' },
+          { picture: 'MightyRaju', text: 'Mighty Raju', displayText: 'Mighty Raju' },
+          { picture: 'NinjaBoy', text: 'Ninja boy Rantaro', displayText: 'Ninja boy Rantaro' },
+          { picture: 'Oswald', text: 'Oswald', displayText: 'Oswald' },
+          { picture: 'Shinchan', text: 'Shinchan', displayText: 'Shinchan'},
+          { picture: 'DetectiveKonan', text: 'Detective Konan', displayText: 'Detective Konan'}
         ],
         selectedLanguage : 'Hindi',
         languages: ['Telugu', 'Tamil', 'English','Hindi'],
@@ -182,15 +205,22 @@
       }),
       props: {
         source: String
-      }
-      ,
+      },
       mounted() {
-    axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=chota+bheem&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU")
-    .then(response => {this.selected = response.data; })
+        // loadFromLocalStorage();
+        if(localStorage.getItem('stored_data') != null)
+          this.stored = JSON.parse(localStorage.getItem('stored_data'));
+        if(localStorage.getItem('selectedShow') != null)
+          this.selected = JSON.parse(localStorage.getItem('selectedShow'));
+        if(localStorage.getItem('selectedLanguage') != null)
+          this.selectedLanguage = localStorage.getItem('selectedLanguage');
+        // axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=chota+bheem&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU")
+        //   .then(response => {this.selected = response.data; })
         this.selectedShow = this.items2[0].text;
+        this.sync();
       }
       
-
+      
 
 
     })
