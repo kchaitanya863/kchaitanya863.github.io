@@ -4,6 +4,7 @@
 <head>
   <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
   <link href="https://unpkg.com/vuetify/dist/vuetify.min.css" rel="stylesheet">
+  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
 </head>
 
@@ -33,7 +34,7 @@
                   <v-list-tile-avatar>
                     <img :src="`https://randomuser.me/api/portraits/men/${item.picture}.jpg`" alt="">
                   </v-list-tile-avatar>
-                  <v-list-tile-title v-text="item.text"></v-list-tile-title>
+                  <v-list-tile-title v-text="item.displayText"></v-list-tile-title>
                 </v-list-tile>
               </v-list>
               <v-list-tile class="mt-3" @click="">
@@ -52,14 +53,28 @@
           </v-navigation-drawer>
           <v-toolbar color="red" dense fixed clipped-left app>
             <v-toolbar-side-icon @click.stop="drawer = !drawer"></v-toolbar-side-icon>
-            <v-icon class="mx-3">fa-youtube</v-icon>
+            <v-icon class="mx-1">fa-youtube</v-icon>
             <v-toolbar-title class="mr-5 align-center">
-              <span class="title">Youtube</span>
+              <span class="title">Hungama Shows</span>
             </v-toolbar-title>
             <v-spacer></v-spacer>
-            <v-layout row align-center style="max-width: 650px">
-              <v-text-field placeholder="Search..." single-line append-icon="search" :append-icon-cb="() => {}" color="white" hide-details></v-text-field>
-            </v-layout>
+            <!-- <v-layout row  style="max-width: 650px"> -->
+                <template>
+                    <div>
+                      <v-menu>
+                        <v-btn color="primary" dark slot="activator">{{selectedLanguage}}</v-btn>
+                        <v-list>
+                          <v-list-tile v-if="language!=selectedLanguage" v-for="language in languages" :key="language" @click="switchLanguage(language)">
+                            <v-list-tile-title >{{ language }}</v-list-tile-title>
+                          </v-list-tile>
+                        </v-list>
+                      </v-menu>
+                      
+                    </div>
+                  </template>
+              <!-- <v-text-field placeholder="Search..." single-line append-icon="search" :append-icon-cb="() => {}" color="white" hide-details></v-text-field> -->
+            <!-- </v-layout> -->
+            <v-icon color="white" medium dark class="x-3" @click="sync">fa-youtube</v-icon>
           </v-toolbar>
           <v-content>
             <v-container fill-height>
@@ -113,30 +128,35 @@
   <script src="https://unpkg.com/vuetify/dist/vuetify.js"></script>
   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
   <script>
-    new Vue({
+    var app = new Vue({
       el: '#app',
       methods : {
         switchShow: function(showName) {
           // alert(showName);
           // showName = showName.replace(' ','+');
-          showName = showName.replace(/!/g,  '%21')
-                                       .replace(/'/g,  '%27')
-                                       .replace(/\(/g, '%28')
-                                       .replace(/\)/g, '%29')
-                                       .replace(/\*/g, '%2A')
-                                       .replace(/%20/g, '+');
-          console.log("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q="+showName+"+full+episodes&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU");
+          this.selectedShow = showName;
+          showName = showName.replace(/!/g,  '%21').replace(/'/g,  '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A').replace(/%20/g, '+');
+          console.log("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q="+showName+"+full+episodes+in+"+this.selectedLanguage+"&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU");
           if(this.stored[showName] == null)
-          axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q="+showName+"+full+episodes&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU")
+          axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q="+showName+"+full+episodes+in+"+this.selectedLanguage+"&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU")
           .then(response => {this.selected = response.data; this.stored[showName] = response.data;})
           else{
             this.selected = this.stored[showName];
             }
-            
+           this.drawer = false;
+        },
+        switchLanguage: function(language){
+          this.selectedLanguage = language;
+        },
+        sync: function(){
+          var showName = this.selectedShow;
+          showName = showName.replace(/!/g,  '%21').replace(/'/g,  '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A').replace(/%20/g, '+');
+          this.selected = axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q="+showName+"+full+episodes+in+"+this.selectedLanguage+"&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU")
+          .then(response => {this.selected = response.data; this.stored[showName] = response.data;})
         }
       },
       data: () => ({
-        drawer: true,
+        drawer: false,
         items: [
           // { icon: 'trending_up', text: 'Most Popular' },
           // { icon: 'subscriptions', text: 'Subscriptions' },
@@ -146,13 +166,15 @@
         ],
         items2: [
           
-          { picture: 38, text: 'Doraemon' },
-          { picture: 39, text: 'chota bheem pogo' },
-          { picture: 36, text: 'pokemon ' },
-          { picture: 48, text: 'Shinchan' },
-          { picture: 78, text: 'MKBHD' }
+          { picture: 38, text: 'Doraemon', displayText: 'Doraemon' },
+          { picture: 39, text: 'chota bheem pogo', displayText: 'Chota Bheem' },
+          { picture: 36, text: 'pokemon all', displayText: 'Pokemon' },
+          { picture: 48, text: 'Shinchan', displayText: 'Shinchan' },
+          { picture: 78, text: 'MKBHD', displayText: 'MKBHD'}
         ],
-
+        selectedLanguage : 'Hindi',
+        languages: ['Telugu', 'Tamil', 'English','Hindi'],
+        selectedShow: '',
         selected: {},
         stored : {}
 
@@ -165,6 +187,7 @@
       mounted() {
     axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=chota+bheem&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU")
     .then(response => {this.selected = response.data; })
+        this.selectedShow = this.items2[0].text;
       }
       
 
