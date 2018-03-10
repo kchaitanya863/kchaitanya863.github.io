@@ -15,6 +15,8 @@
       <!-- <v-content>
         <v-container>Hello world</v-container>
       </v-content> -->
+
+
       <template>
         <v-app dark id="inspire">
           <v-navigation-drawer fixed clipped v-model="drawer" app>
@@ -31,7 +33,7 @@
               </v-list-tile>
               <v-subheader class="mt-3 grey--text text--darken-1">Shows</v-subheader>
               <v-list>
-                <v-list-tile v-for="item in items2" :key="item.text" avatar @click="switchShow(item.text)">
+                <v-list-tile v-for="item in items2" :key="item.text" avatar @click="switchShow(item)">
                   <v-list-tile-avatar>
                     <img :src="`assets/${item.picture}.png`" alt="">
                   </v-list-tile-avatar>
@@ -39,15 +41,15 @@
                 </v-list-tile>
               </v-list>
               <v-subheader class="mt-3 grey--text text--darken-1">Language Select</v-subheader>
-              
+
               <v-menu>
-                  <v-btn color="red" dark slot="activator">{{selectedLanguage}}</v-btn>
-                  <v-list>
-                    <v-list-tile v-if="language!=selectedLanguage" v-for="language in languages" :key="language" @click="switchLanguage(language)">
-                      <v-list-tile-title>{{ language }}</v-list-tile-title>
-                    </v-list-tile>
-                  </v-list>
-                </v-menu>
+                <v-btn color="red" dark slot="activator">{{selectedLanguage}}</v-btn>
+                <v-list>
+                  <v-list-tile v-if="language!=selectedLanguage" v-for="language in languages" :key="language" @click="switchLanguage(language)">
+                    <v-list-tile-title>{{ language }}</v-list-tile-title>
+                  </v-list-tile>
+                </v-list>
+              </v-menu>
 
               <v-list-tile class="mt-3" @click="sync">
                 <v-list-tile-action>
@@ -68,7 +70,7 @@
             <!-- <v-icon class="mx-1">fa-youtube</v-icon>
             <v-icon>fas fa-circle-notch fa-spin</v-icon> -->
             <v-toolbar-title class="mr-5 align-center">
-              <span class="title">Hungama Shows</span>
+              <span class="title">Hungama Shows {{ !LanguageAlert?'in '+this.selectedLanguage:'in Hindi' }}</span>              
             </v-toolbar-title>
             <v-spacer></v-spacer>
             <!-- <v-layout row  style="max-width: 650px"> -->
@@ -129,6 +131,7 @@
                         </v-card-actions> -->
                       </v-card>
                     </v-flex>
+                    <v-btn flat color="Primary" @click="loadMore">Load More!</v-btn>
                   </v-layout>
                 </template>
               </v-layout>
@@ -157,25 +160,50 @@
           // alert(showName);
           // showName = showName.replace(' ','+');
           this.selectedShow = showName;
-          showName = showName.replace(/!/g, '%21').replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A').replace(/%20/g, '+');
-          console.log("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=" + showName + "+full+episodes+in+" + this.selectedLanguage + "&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU");
+          var selectedShow = showName.text;
+          var selectedLanguage = this.selectedLanguage;
+          if (showName.languages.indexOf(selectedLanguage) == -1) {
+            selectedLanguage = 'Hindi';
+            this.LanguageAlert = true;
+          }
+          else{
+            this.LanguageAlert = false;
+          }
+          this.currentLanguage = selectedLanguage;
+          //if user mentions a playlist,
+          
+
+          showName = showName.text.replace(/!/g, '%21').replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A').replace(/%20/g, '+');
+          // console.log("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=48&q=" + showName + "+full+episodes+in+" + this.selectedLanguage + "&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU");
           if (this.stored[showName] == null)
-            axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=" + showName + "+full+episodes+in+" + this.selectedLanguage + "&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU")
+            axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=48&q=" + showName + "+full+episodes+in+" + this.currentLanguage + "&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU")
               .then(response => { this.selected = response.data; this.stored[showName] = response.data; })
           else {
             this.selected = this.stored[showName];
           }
+          
           this.drawer = false;
           this.saveToLocal();
         },
         switchLanguage: function (language) {
           this.selectedLanguage = language;
+          var showName = this.selectedShow;
+          var selectedLanguage = this.selectedLanguage;
+          if (showName.languages.indexOf(selectedLanguage) == -1) {
+            selectedLanguage = 'Hindi';
+            this.LanguageAlert = true;
+          }
+          else{
+            this.LanguageAlert = false;
+          }
+          this.currentLanguage = selectedLanguage;
+
           this.sync();
         },
         sync: function () {
-          var showName = this.selectedShow;
+          var showName = this.selectedShow.text;
           showName = showName.replace(/!/g, '%21').replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A').replace(/%20/g, '+');
-          this.selected = axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=" + showName + "+full+episodes+in+" + this.selectedLanguage + "&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU")
+          this.selected = axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=48&q=" + showName + "+full+episodes+in+" + this.currentLanguage + "&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU")
             .then(response => { this.selected = response.data; this.stored[showName] = response.data; })
           this.saveToLocal();
         },
@@ -183,11 +211,24 @@
           saveToLocalStorage('stored_data', this.stored);
           saveToLocalStorage('selectedShow', this.selected);
           localStorage.setItem('selectedLanguage', this.selectedLanguage);
+        },
+        loadMore: function () {
+          var showName = this.selectedShow.text;
+          showName = showName.replace(/!/g, '%21').replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A').replace(/%20/g, '+');
+          axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=48&pageToken=" + this.selected.nextPageToken + "&q=" + showName + "+full+episodes+in+" + this.currentLanguage + "&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU")
+            .then(response => {
+              this.selected.items = this.selected.items.concat(response.data.items);
+              this.stored[showName] = this.selected;
+              this.selected.nextPageToken = response.data.nextPageToken;
+              this.saveToLocal();
+            })
+
         }
       },
       data: () => ({
         drawer: false,
         isPlaying: false,
+        LanguageAlert: false,
         items: [
           // { icon: 'trending_up', text: 'Most Popular' },
           // { icon: 'subscriptions', text: 'Subscriptions' },
@@ -197,18 +238,21 @@
         ],
         items2: [
 
-          { picture: 'Doraemon', text: 'Doraemon', displayText: 'Doraemon' },
-          { picture: 'chotaBheem', text: 'chota bheem pogo', displayText: 'Chota Bheem' },
-          { picture: 'Hagimaru', text: 'Hagimaru', displayText: 'Hagimaru' },
-          { picture: 'Kiteratsu', text: 'Kiteratsu', displayText: 'Kiteratsu' },
-          { picture: 'Kochikame', text: 'Kochikame', displayText: 'Kochikame' },
-          { picture: 'MightyRaju', text: 'Mighty Raju', displayText: 'Mighty Raju' },
-          { picture: 'NinjaBoy', text: 'Ninja boy Rantaro', displayText: 'Ninja boy Rantaro' },
-          { picture: 'Oswald', text: 'Oswald', displayText: 'Oswald' },
-          { picture: 'Shinchan', text: 'Shinchan', displayText: 'Shinchan' },
-          { picture: 'DetectiveKonan', text: 'Detective Konan', displayText: 'Detective Konan' }
+          { picture: 'Doraemon', text: 'Doraemon', displayText: 'Doraemon', languages: ['Telugu', 'Tamil', 'English', 'Hindi'] },
+          // { picture: 'chotaBheem', text: 'chota bheem animated series', displayText: 'Chota Bheem', languages: ['Telugu', 'Tamil', 'English', 'Hindi'] },
+          { picture: 'Hagimaru', text: 'Hagemaru', displayText: 'Hagemaru', languages: ['Hindi'] },
+          { picture: 'Kiteratsu', text: 'kiteretsu', displayText: 'kiteretsu', languages: ['Hindi'] },
+          { picture: 'Kochikame', text: 'Kochekame', displayText: 'Kochekame', languages: ['Hindi'] },
+          { picture: 'MightyRaju', text: 'Mighty Raju', displayText: 'Mighty Raju', languages: ['Hindi'] },
+          { picture: 'NinjaBoy', text: 'Ninja boy Rantaro', displayText: 'Ninja boy Rantaro', languages: ['Hindi'] },
+          { picture: 'Oswald', text: 'Oswald', displayText: 'Oswald', languages: ['English', 'Hindi'] },
+          { picture: 'Shinchan', text: 'Shinchan', displayText: 'Shinchan', languages: ['Telugu', 'Tamil', 'English', 'Hindi'] },
+          // { picture: 'DetectiveKonan', text: 'Detective Konan', displayText: 'Detective Konan', languages: ['Telugu', 'Tamil', 'English', 'Hindi'] },
+          { picture: 'Perman', text: 'Perman', displayText: 'Perman', languages: ['Telugu', 'Tamil', 'English', 'Hindi'] }
+
         ],
         selectedLanguage: 'Hindi',
+        currentLanguage: 'Hindi',
         languages: ['Telugu', 'Tamil', 'English', 'Hindi'],
         selectedShow: '',
         selected: {},
@@ -225,11 +269,13 @@
           this.stored = JSON.parse(localStorage.getItem('stored_data'));
         if (localStorage.getItem('selectedShow') != null)
           this.selected = JSON.parse(localStorage.getItem('selectedShow'));
-        if (localStorage.getItem('selectedLanguage') != null)
+        if (localStorage.getItem('selectedLanguage') != null){
           this.selectedLanguage = localStorage.getItem('selectedLanguage');
+          this.currentLanguage= this.selectedLanguage;
+        }
         // axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=chota+bheem&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU")
         //   .then(response => {this.selected = response.data; })
-        this.selectedShow = this.items2[0].text;
+        this.selectedShow = this.items2[0];
         this.sync();
       }
 
