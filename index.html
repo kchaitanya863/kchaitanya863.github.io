@@ -127,9 +127,9 @@
                     <v-flex v-for="item in selected.items" xs12 sm6 md4 lg3 padding-left-3>
                       <v-card>
                         <v-card-media v-if="item.etag" @click="item.etag = !item.etag" :src="item.snippet.thumbnails.high.url" height="200px" width="100px"></v-card-media>
-                        <!-- <iframe v-if="!item.etag"  height="200px" :src="'https://www.youtube.com/embed/'+ item.id.videoId +'?autoplay=1&amp;rel=0&amp;showinfo=0'"
-                          frameborder="0" allowfullscreen></iframe> -->
-                          <object v-if="!item.etag" style="width:100%;height:100%;float: none; clear: both; margin: 2px auto;" :data="'https://www.youtube.com/embed/'+ item.id.videoId +'?autoplay=1&amp;rel=0&amp;showinfo=0'">
+                        <iframe v-if="!item.etag" style="width:100%;height:100%;float: none; clear: both; margin: 2px auto;"  height="200px" :src="'https://www.youtube.com/embed/'+ item.id.videoId +'?autoplay=1&amp;rel=0&amp;showinfo=0'"
+                          frameborder="0" allowfullscreen></iframe>
+                          <!-- <object v-if="!item.etag" style="width:100%;height:100%;float: none; clear: both; margin: 2px auto;" :data="'https://www.youtube.com/embed/'+ item.id.videoId +'?autoplay=1&amp;rel=0&amp;showinfo=0'"> -->
                           </object>
                         <!-- <v-card-title primary-title>
                           <div>
