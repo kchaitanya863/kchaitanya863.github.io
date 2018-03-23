@@ -31,16 +31,6 @@
         <v-app dark id="inspire">
           <v-navigation-drawer fixed clipped v-model="drawer" app>
             <v-list dense>
-              <v-list-tile v-for="item in items" :key="item.text" @click="">
-                <v-list-tile-action>
-                  <v-icon>{{ item.icon }}</v-icon>
-                </v-list-tile-action>
-                <v-list-tile-content>
-                  <v-list-tile-title>
-                    {{ item.text }}
-                  </v-list-tile-title>
-                </v-list-tile-content>
-              </v-list-tile>
               <v-subheader class="mt-3 grey--text text--darken-1">Shows</v-subheader>
               <v-list>
                 <v-list-tile v-for="item in items2" :key="item.text" avatar @click="switchShow(item)">
@@ -73,6 +63,22 @@
                 </v-list-tile-action>
                 <v-list-tile-title class="grey--text text--darken-1">Feedback To Developer</v-list-tile-title>
               </v-list-tile>
+
+              <v-subheader class="mt-3 grey--text text--darken-1">Try these</v-subheader>
+              <v-list-tile v-for="item in items" :key="item.text" @click="" :href="item.link">
+                <!-- <v-list-tile-action>
+                  <v-icon>{{ item.icon }}</v-icon>
+                </v-list-tile-action> -->
+                <v-list-tile-avatar>
+                  <img :src="`promos/${item.picture}.png`" alt="">
+                </v-list-tile-avatar>
+                <v-list-tile-content>
+                  <v-list-tile-title>
+                    {{ item.text }}
+                  </v-list-tile-title>
+                </v-list-tile-content>
+              </v-list-tile>
+
             </v-list>
           </v-navigation-drawer>
           <v-toolbar color="red" dense fixed clipped-left app>
@@ -242,11 +248,8 @@
         isPlaying: false,
         LanguageAlert: false,
         items: [
-          // { icon: 'trending_up', text: 'Most Popular' },
-          // { icon: 'subscriptions', text: 'Subscriptions' },
-          // { icon: 'history', text: 'History' },
-          // { icon: 'featured_play_list', text: 'Playlists' },
-          // { icon: 'watch_later', text: 'Watch Later' }
+          { picture: 'cartoonsApp', text: 'CartoonsApp', link: 'ms-windows-store://pdp/?ProductId=9NBLGGH4VF87'},
+          { picture: 'CN90s', text: 'Cartoon Network 90s', link: 'ms-windows-store://pdp/?ProductId=9WZDNCRDFWCW'}
         ],
         items2: [
 
@@ -260,7 +263,7 @@
           { picture: 'Oswald', text: 'Oswald', displayText: 'Oswald', languages: ['English', 'Hindi'] },
           { picture: 'Shinchan', text: 'Shinchan', displayText: 'Shinchan', languages: ['Telugu', 'Tamil', 'English', 'Hindi'] },
           // { picture: 'DetectiveKonan', text: 'Detective Konan', displayText: 'Detective Konan', languages: ['Telugu', 'Tamil', 'English', 'Hindi'] },
-          { picture: 'Perman', text: 'Perman', displayText: 'Perman', languages: ['Telugu', 'Tamil', 'English', 'Hindi'] }
+          { picture: 'Perman', text: 'Perman', displayText: 'Perman', languages: ['Telugu', 'Tamil', 'Hindi'] }
 
         ],
         selectedLanguage: 'Hindi',
