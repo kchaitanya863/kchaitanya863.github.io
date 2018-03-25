@@ -5,6 +5,7 @@
   <title>Hungama Shows</title>
   <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-51874535-9"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/autotrack/2.4.1/autotrack.js"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
@@ -12,6 +13,18 @@
 
   gtag('config', 'UA-51874535-9');
 </script>
+<script>
+  window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+  ga('create', 'UA-51874535-9', 'auto');
+  
+  // Replace the following lines with the plugins you want to use.
+  ga('require', 'eventTracker');
+  ga('require', 'outboundLinkTracker');
+  ga('require', 'urlChangeTracker');
+  // ...
+  
+  ga('send', 'pageview');
+  </script>
   <link href='https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Material+Icons' rel="stylesheet">
   <link href="https://unpkg.com/vuetify/dist/vuetify.min.css" rel="stylesheet">
   <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN"
@@ -196,7 +209,7 @@
           
           this.drawer = false;
           this.saveToLocal();
-          window.history.pushState("", "", '/'+this.selectedShow.displayText+this.currentLanguage);
+          window.history.pushState("", "", '/'+this.currentLanguage+'/'+this.selectedShow.displayText);
         },
         switchLanguage: function (language) {
           this.selectedLanguage = language;
@@ -212,7 +225,7 @@
           this.currentLanguage = selectedLanguage;
 
           this.sync();
-          window.history.pushState("", "", '/'+this.selectedShow.displayText+this.currentLanguage);
+          window.history.pushState("", "", '/'+this.currentLanguage+'/'+this.selectedShow.displayText);
         },
         sync: function () {
           var showName = this.selectedShow.text;
@@ -288,7 +301,7 @@
         //   .then(response => {this.selected = response.data; })
         this.selectedShow = this.items2[0];
         this.sync();
-        window.history.pushState("", "", '/'+this.selectedShow.displayText+this.currentLanguage);
+        window.history.pushState("", "", '/'+this.currentLanguage+'/'+this.selectedShow.displayText);
       }
 
 
