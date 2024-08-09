@@ -201,7 +201,7 @@
           this.currentLanguage = selectedLanguage;
           showName = showName.text.replace(/!/g, '%21').replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A').replace(/%20/g, '+');
           if (this.stored[showName] == null)
-            axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=48&q=" + showName + "+full+episodes+in+" + this.currentLanguage + "&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU")
+            axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=48&q=" + showName + "+full+episodes+in+" + this.currentLanguage + "&key=AIzaSyD0qqnH0XQqwZDlHrZg35xpNNhKyoqD3Pk")
               .then(response => { this.selected = response.data; this.stored[showName] = response.data; })
           else {
             this.selected = this.stored[showName];
@@ -230,7 +230,7 @@
         sync: function () {
           var showName = this.selectedShow.text;
           showName = showName.replace(/!/g, '%21').replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A').replace(/%20/g, '+');
-          this.selected = axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=48&q=" + showName + "+full+episodes+in+" + this.currentLanguage + "&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU")
+          this.selected = axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=48&q=" + showName + "+full+episodes+in+" + this.currentLanguage + "&key=AIzaSyD0qqnH0XQqwZDlHrZg35xpNNhKyoqD3Pk")
             .then(response => { this.selected = response.data; this.stored[showName] = response.data; })
           this.saveToLocal();
         },
@@ -242,7 +242,7 @@
         loadMore: function () {
           var showName = this.selectedShow.text;
           showName = showName.replace(/!/g, '%21').replace(/'/g, '%27').replace(/\(/g, '%28').replace(/\)/g, '%29').replace(/\*/g, '%2A').replace(/%20/g, '+');
-          axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=48&pageToken=" + this.selected.nextPageToken + "&q=" + showName + "+full+episodes+in+" + this.currentLanguage + "&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU")
+          axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=48&pageToken=" + this.selected.nextPageToken + "&q=" + showName + "+full+episodes+in+" + this.currentLanguage + "&key=AIzaSyD0qqnH0XQqwZDlHrZg35xpNNhKyoqD3Pk")
             .then(response => {
               this.selected.items = this.selected.items.concat(response.data.items);
               this.stored[showName] = this.selected;
@@ -297,7 +297,7 @@
           this.selectedLanguage = localStorage.getItem('selectedLanguage');
           this.currentLanguage= this.selectedLanguage;
         }
-        // axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=chota+bheem&key=AIzaSyDkvCD_V5uo3puVkY_FvqQdTr4ncDk6XAU")
+        // axios.get("https://content.googleapis.com/youtube/v3/search?part=snippet&maxResults=50&q=chota+bheem&key=AIzaSyD0qqnH0XQqwZDlHrZg35xpNNhKyoqD3Pk")
         //   .then(response => {this.selected = response.data; })
         this.selectedShow = this.items2[0];
         this.sync();
